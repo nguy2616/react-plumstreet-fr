@@ -1,5 +1,4 @@
-import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { authInterface } from "../../interfaces/authInteface";
+import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 const initialState = {
