@@ -10,9 +10,39 @@ import { getAuth, setCredentials } from "../../../store/slices/authSlice";
 import './login.css'
 function Login() {
   const navigate = useNavigate()
+  // login info
   const [email, setEmail] = useState('')
   const [password, setPawssword] = useState('')
-
+  // error mess and isSubmit
+  const [errorMsg, setErrorMsg] = useState({name: '', message: ''})
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  // valid email
+  function isValidEmail(email: string) {
+    return /\S+@\S+\.\S+/.test(email);
+  }
+  // render error
+  const renderErrorMsg = (name: string) => name === errorMsg.name && (
+    <div className="error">{errorMsg.message}</div>
+  )
+  // handle change email
+  const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isValidEmail(e.target.value)) {
+      setErrorMsg({name: 'email', message: 'invalid email'})
+    } else {
+      setEmail(e.target.value)
+      setErrorMsg({name: '', message: ''})
+    }
+  }
+  // handle change password
+  const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length < 6) {
+      setErrorMsg({name: 'password', message: 'password must be more than 6 characters'})
+    } else {
+      setPawssword(e.target.value)
+      setErrorMsg({name: '', message: ''})
+    }
+  }
+  // handle login 
   const [login, {isLoading}] = useLoginMutation()
   const dispatch = useDispatch()
   const auth = useSelector(getAuth)
@@ -25,41 +55,37 @@ function Login() {
       dispatch(setCredentials(userData))
       console.log(auth, 'auth')
       navigate('/foodtrucks')
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      if (error.data.statusCode === 400) {
+        setErrorMsg({name: 'invalid', message: 'invalid credentials, please try again'})
+      }
     }
   } 
-  useEffect(() => {
-    console.log('auth', auth)
-  }, [auth])
-
+  
   return(
     <>
-      <Container className="pa-6">
+
         <div className="d-flex align-items-center justify-content-center my-5">
         <img className="logo" src={require('./logo-plumstreet.png')}/>
         </div>
         <div className="d-flex align-items-center justify-content-center">
-        <Form onSubmit={(e) => handleSubmit(e)}>
-          <Form.Group className="loginForm">
-            <Form.Control className="mb-4" type="email" value={email} placeholder="EMAIL" onChange={(e) => setEmail(e.target.value)}/>
-            <Form.Control className="mb-4" type="password" value={password} placeholder="MOT DE PASSE"  onChange={(e) => setPawssword(e.target.value)}/>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="formBasicCheckbox">
-            <div className="d-flex justify-content-between">
-              <Form.Check type="checkbox" label="Remember me" />
-              <p>Forgot Password</p>
+        <form className="login-form" onSubmit={(e) => handleSubmit(e)}>
+          <div className="input-container mb-4">
+            <div className="input-email my-2">
+            <input className="max-width" type="text" name="email" onChange={handleChangeEmail}   />
+            {renderErrorMsg('email')}
             </div>
-      </Form.Group>
-      <div  className="d-grid">
-      <Button className="base-btn" type="submit">
-        Submit
-      </Button>
-      </div>
-    
-        </Form>
+            <div className="input-password my-2">
+            <input className="max-width" type="password" name="password" onChange={handleChangePassword}   />
+            {renderErrorMsg('password')}
+            </div>
+          </div>
+          <div className="button-container">
+            {renderErrorMsg('invalid')}
+            <button className="base-btn" type="submit">LOGIN</button>
+          </div>
+        </form>
         </div>
-      </Container>
     </>
   ) 
 }

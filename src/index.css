@@ -15,5 +15,17 @@ code {
 
 .base-btn {
   background-color: #50CCA1 !important;
+  width: 100%;
+  color: white;
+  font-size: 20px;
   border-color: transparent !important;
+  border-radius: 4px;
+}
+
+.max-width {
+  width: 100%;
+}
+.error {
+  color: red;
+  font-size: 16px
 }
