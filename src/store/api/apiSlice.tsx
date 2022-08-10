@@ -19,7 +19,7 @@ export const api = createApi({
         return headers
     }
   }),
-  tagTypes: ['Post'],
+  tagTypes: ['Post', 'Company'],
   endpoints: (builder) => ({
     login: builder.mutation<authInterface, LoginRequest>({
       query: (credentials) => ({

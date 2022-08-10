@@ -1,14 +1,12 @@
-* {
- 
-}
+
 .login {
-  width: 100vw;
+  width: 100%;
 }
 .logo {
   width: 200px;
   height: 160px;
 }
 .login-form {
-  width: 50vw;
+  width: 50%;
 }
 

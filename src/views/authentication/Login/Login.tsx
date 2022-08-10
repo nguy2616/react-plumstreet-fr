@@ -1,13 +1,11 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { Button, Container, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../../store/api/apiSlice";
 import { getAuth, setCredentials } from "../../../store/slices/authSlice";
+import '../../../assets/css/auth/login.css'
 
-
-import './login.css'
 function Login() {
   const navigate = useNavigate()
   // login info
