@@ -1,16 +1,11 @@
 import { createEntityAdapter, createSelector } from "@reduxjs/toolkit";
+import { companyInterface } from "../../interfaces/companyInterface";
 import { api } from "../api/apiSlice";
 import { RootState } from "../store";
 
-const companiesAdapter = createEntityAdapter<any>({})
+const companiesAdapter = createEntityAdapter<companyInterface>({})
 
-type Company = {
-    id: number, 
-    name: string, 
-}
-type Companies = {
-    companies: Company[]
-}
+
 // let initialState : postInterface
 const initialState = companiesAdapter.getInitialState()
 
@@ -20,8 +15,8 @@ export const extendedApiSplice = api.injectEndpoints({
     endpoints: builder => ({
         getCompanies: builder.query({
             query: () => '/companies',
-            transformResponse: (res: Companies, meta, arg) => {
-                console.log(res)
+            transformResponse: (res: companyInterface[], meta, arg) => {
+                console.log(res, 'res')
                 const companiesloadedCompanies = res
                 return companiesAdapter.setAll(initialState, companiesloadedCompanies)
             },

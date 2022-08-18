@@ -1,132 +1,91 @@
 import { useSelector } from "react-redux"
 import {  } from "../../../store/slices/postSlice"
-import { selectAllCompanies, useGetCompaniesQuery } from "../../../store/slices/companySlice"
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
-
+import { selectAllCompanies, useDeleteCompanyMutation, useGetCompaniesQuery } from "../../../store/slices/companySlice"
+import { Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material"
+import { userInterface } from "../../../interfaces/userInterface"
+import { cuisineTypeInterface } from "../../../interfaces/cuisineTypeInterface"
+import React, { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal, useState } from "react"
+import './foodtrucks.css'
+import { useNavigate } from "react-router-dom"
+import InviteFoodtruckForm from "../../../components/Admin/InviteFoodtruckForm"
 function Foodtrucks() {
-//   const [postName, setPostName] = useState('')
-//   const {
-//     isLoading,
-//     isSuccess, 
-//     isError,
-//     error
-//   } = useGetPostsQuery('')
-//   const posts = useSelector(selectAllPosts)
-
-//    // deletePost
-//    const [deleteId, setDeleteId] = useState(0)
-//    const [deletePost] = useDeletePostMutation()
-//    const clickDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
-//      try {
-//        event.preventDefault()
-//        const button: HTMLButtonElement = event.currentTarget;
-//        setDeleteId(Number(button.value))
-      
-//      } catch (error) {
-//        console.log(error)
-//      }
-//    }
-//    useEffect(() => {
-//     if (deleteId !== 0) {
-//       deletePost(deleteId).unwrap()
-//       .then(() =>
-//       setDeleteId(0)
-//       )   
-//     }
-//    }, [deleteId])
-//    // updatepost
-//    const [updateId, setUpdateId] = useState(0)
-//    const [updatePost] = useUpdatePostMutation()
-//    const clickUpdate = async (event: React.MouseEvent<HTMLButtonElement>) => {
-//     try {
-//       event.preventDefault()
-//       const button: HTMLButtonElement = event.currentTarget;
-//       setUpdateId(Number(button.value))
-//     } catch (error) {
-//       console.log(error)
-//     }
-//    }
-//    useEffect(() => {
-//     if (updateId !== 0) {
-//       updatePost({id: updateId, name: postName}).unwrap()
-//       .then(() => {
-//         setUpdateId(0)
-//         setPostName('')
-//       })
-//     }
-//    }, [updateId])
-//   let content;
-//   if (isLoading) {
-//     content = <p>Loading API</p>
-//   } else if (isSuccess) {
-//     content = posts.map(post => {
-//       return <li key={post.id}>{post.id} - {post.name} | <button type="button" value={Number(post.id)} onClick={clickDelete}>Delete</button>
-//       <form>
-//     <input type="text" value={postName} onChange={(e) => setPostName(e.target.value)}/>
-//     <button type="button" value={post.id} onClick={clickUpdate}>update Post</button>
-//   </form>
-//       </li>
-//     })
-//   }
-//   else if (isError) {
-//     console.log(error)
-//     content = <p>Error</p>
-//   }
-//   // add post
-//   const [createPost] = useCreatePostMutation()
-//   const addPost = async () => {
-//     try {
-//       await createPost({ name: postName}).unwrap()
-//       .then(() => {
-//         setPostName('')
-//       })
-  
-//     } catch (error) {
-//       console.log(error)
-//     }
-//   }
- 
-// return(
-//  <section>
-//   {content}
-//   <form>
-//     <input type="text" value={postName} onChange={(e) => setPostName(e.target.value)}/>
-//     <button type="button" onClick={addPost}>Add Post</button>
-//   </form>
-//  </section>
-// )
   const {
     isLoading,
     isSuccess, 
     isError,
     error
   } = useGetCompaniesQuery('')
+  const navigate = useNavigate()
   const companies = useSelector(selectAllCompanies)
-  console.log(companies)
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5)
+
+  const [deleteCompany] = useDeleteCompanyMutation()
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
+    e.stopPropagation()
+    deleteCompany(id)
+
+  }
   return(
-    <>
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} size="small" >
-        <TableHead>
+    <Box>
+      <div style={{ display: 'flex', justifyContent: 'right'}}>
+      <InviteFoodtruckForm />
+      </div>
+ 
+    <TableContainer >
+                {/* tableLayout: 'fixed' make all colum width equal */}
+      <Table sx={{ tableLayout: 'fixed' }} size="small" >
+
+        <TableHead className="tableHeader">
         <TableRow>
           <TableCell>FOODTRUCKS</TableCell>
           <TableCell>CONTACT PRINCIPAL</TableCell>
           <TableCell>TYPE DE CUISINE</TableCell>
+          <TableCell>DELETE</TableCell>
         </TableRow>
         </TableHead>
 
-        <TableBody>
+        <TableBody className="tableBody">
           {companies.map((company) => (
-            <TableRow key={company.id}>
+            <TableRow key={company.id} onClick={() =>  navigate(`${company.id}`)}>
               <TableCell>{company.name}</TableCell>
-              <TableCell>{company.contacts[0].email}</TableCell>
-              <TableCell>{company.cuisine_types[0].name}</TableCell>
+              <TableCell>{company.contacts.map((contact: userInterface) => {
+                if (contact.isPrimary) {
+                  return (
+                    <div key={contact.id}><h4>{contact.fullName}</h4><span>{contact.email}</span></div>
+                  )
+                }
+              })}</TableCell>
+              <TableCell>{company.cuisine_types.map((cs: cuisineTypeInterface) => (
+                <span className="cuisineType" key={cs.id}>{cs.name}</span>
+              ))}</TableCell>
+               <TableCell><Button onClickCapture={(e) => handleDelete(e, company.id)}>Delete</Button></TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
-    </>
+    <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={companies.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+       
+        />
+    </Box>
   )
 
 }
